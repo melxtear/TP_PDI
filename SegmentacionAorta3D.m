@@ -35,11 +35,15 @@ image_erosionada = imclose(BWedge,strel('disk',8));
 figure(4)
 imshow(image_erosionada)
 
-image_rellenada = imfill(image_erosionada,"holes");
+img_cerrada = imcomplement(image_erosionada);
+figure(5)
+imshow(img_cerrada)
+
+image_rellenada = imfill(img_cerrada,"holes");
 figure(2)
 imshow(image_rellenada)
 
-stats = regionprops(image_erosionada, 'Centroid', 'PixelIdxList');
+stats = regionprops(img_cerrada, 'Centroid', 'PixelIdxList');
 
 % Calcular distancias al centroide dado
 distancias = arrayfun(@(s) norm(s.Centroid - centroideAorta), stats);
