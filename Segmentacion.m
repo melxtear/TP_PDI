@@ -15,11 +15,11 @@ function [Mask] = Segmentacion(image)
     %}
 
     % FORMA CON CIERRE MORFOLOGICO
-    BWedge = edge(image, 'Canny');
+    BWedge = edge(image(:,:,1), 'Canny'); % cambié esto, me tomaba error ya que es 3D
+    %BWedge = edge(image, 'Canny');
     image_cerrada = imclose(BWedge,strel('disk',5));
     image_complemento = imcomplement(image_cerrada);
     Mask = image_complemento;
-
     %{ 
     FORMA CON IMFINDCIRCLES Y VISCIRCLES
     idx = -1;
