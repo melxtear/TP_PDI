@@ -15,7 +15,8 @@ function [Mask] = Mascara(image)
     %}
 
     % FORMA CON CIERRE MORFOLOGICO
-    BWedge = edge(image, 'Canny');
+    BWedge = edge(image(:,:,1), 'Canny'); % cambié esto, me tomaba error ya que es 3D
+    %BWedge = edge(image, 'Canny');
     image_cerrada = imclose(BWedge,strel('disk',5));
     image_complemento = imcomplement(image_cerrada);
     Mask = image_complemento;
@@ -42,4 +43,5 @@ function [Mask] = Mascara(image)
     imshow(image,[])
     viscircles([centros(idx,1),centros(idx,2)], radios(idx),'Color','b','LineWidth',1);
     %}
+
 end
