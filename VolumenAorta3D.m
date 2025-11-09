@@ -1,14 +1,16 @@
 function [] = VolumenAorta3D(filename)
 
 vol = nrrdread(filename);
-
-VolMarcado = zeros([size(vol),3]); %RGB
+vol = vol(:,:,100:200,:);
+VolMarcado = zeros([size(vol),1]); %RGB
 [~, ~,numSlices] = size(vol);
-CentroidesSlice = zeros(numSlices,2); %Vector de centroides de cada Slice formato [x,y]
-%CentroidesSlice(1,:) = CentroideInicial(vol);
+CentroidesSlice = zeros(numSlices,4); %Vector de centroides de cada Slice formato [x,y]
+[x,y] = CentroideInicial(vol);
+CentroidesSlice(1,1) = x;
+CentroidesSlice(1,2) = y;
 
-for i = size(vol,3):-1:1  
-    [VolMarcado(:,:,i,:), CentroidesSlice(i+1,:)] = SegmentacionSlice(CentroidesSlice(i,:), vol(:,:,i));
+for i = 1:size(vol,3)  
+    [VolMarcado(:,:,i), CentroidesSlice(i+1,:)] = SegmentacionSlice(CentroidesSlice(i,:), vol(:,:,i));
 end
 
-volshow(VolMarcado);
+%volshow(VolMarcado);

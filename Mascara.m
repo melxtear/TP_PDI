@@ -1,47 +1,46 @@
-function [Mask] = Mascara(image)
+function [MaskAorta, CentroideSiguiente] = Mascara(slice, CentroideAorta)
+    SEcualizada = histeq(slice,256);
+    Mask = SEcualizada > 32000;
+    
     %{
-    FORMA LUCAS
-    BW = edge(image, 'Canny');
-   
-    % Limpieza
-    BW_rellena = imfill(BW, 'holes');
-    BW_sin_borde = imclearborder(BW_rellena);
-    
-    se = strel('disk', 3);
-    BW_separada = imerode(BW_sin_borde, se);
-    
-    % Filtro de área mínima, elimina ruido
-    Mask = bwareaopen(BW_separada, 3000);
-    %}
+    R = 5;
 
-    % FORMA CON CIERRE MORFOLOGICO
-    BWedge = edge(image(:,:,1), 'Canny'); % cambié esto, me tomaba error ya que es 3D
-    %BWedge = edge(image, 'Canny');
-    image_cerrada = imclose(BWedge,strel('disk',5));
-    image_complemento = imcomplement(image_cerrada);
-    Mask = image_complemento;
+    [rows, cols] = size(SEcualizada);
+    [X, Y] = meshgrid(1:cols, 1:rows);
+    maskradio = (X - CentroideAorta(1)).^2 + (Y - CentroideAorta(2)).^2 <= R^2;
+    valores = SEcualizada(maskradio);
+    valores = valores(valores ~= 0 & ~isnan(valores));
 
-    %{ 
-    FORMA CON IMFINDCIRCLES Y VISCIRCLES
-    idx = -1;
-    err = 10;
-    BWedge = edge(image, 'Canny');
-    figure(1)
-    imshow(BWedge)
-    
-    [centros,radios] = imfindcircles(BWedge,[1 20]);
-    
-    for i = 1:size(centros,1)
-        % calcular distancia euclídea al centroide
-        dist = norm(centros(i,:) - centroideAorta);
-        if dist < err
-            idx = i;
-        end
+    if isempty(valores)
+       error('No se pudo hallar un umbral');
+    else
+        min_val = min(valores);
     end
-    
-    figure(2)
-    imshow(image,[])
-    viscircles([centros(idx,1),centros(idx,2)], radios(idx),'Color','b','LineWidth',1);
+    Mask = SEcualizada >= min_val;
+    %Version automatizada
     %}
 
+    Mask = imclose(Mask,strel('disk',1));
+
+    [MaskAorta,CentroideSiguiente] = PuntoInterno(Mask, CentroideAorta);
+
+    figure(1)
+    subplot(1,2,1)
+    imshow(Mask)
+    subplot(1,2,2)
+    imshow(MaskAorta)
+    impixelinfo
+    pause(0.025)
 end
+%% Comentarios a tener en cuenta
+%PROBLEMA: en la primera imagen SI hay que marcar el centroide
+%SOLUCION: dentro del objeto que encuentra que contiene al puntointerno, devolver el promedio de intensidades de
+%ese objeto. FALTA APLICAR
+
+%PROBLEMA: no detecta ambas ramas de la aorta
+%SOLUCION: averiguar entre que slices estan las ramas de interes y hallar
+%otra circunferencia similar a la actual. FALTA APLICAR
+
+%PROBLEMA: no debe tomar vasos cercanos
+%SOLUCION: que utilice conjuntos conexos pero de 4 pixeles, no 8. FALTA
+%APLICAR
