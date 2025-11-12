@@ -1,0 +1,9 @@
+vol = nrrdread("C:\Users\erica\Desktop\Cosas de ISA\PDI\TP_PDI\Dongyang\Dongyang\D18\D18.nrrd");
+
+for k = 1:size(vol,3)
+    imshow(vol(:,:,k),[])
+    hold on
+    title(sprintf('Slice %d', k));
+
+    pause(0.2)
+end
