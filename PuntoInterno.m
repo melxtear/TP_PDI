@@ -17,7 +17,7 @@ function [MaskAorta, PuntosSiguiente] = PuntoInterno(mask, PuntosAorta)
     end
 
     % --- Etiquetar regiones ---
-    L = bwlabel(mask);  
+    L = bwlabel(mask,4);  
     numLabels = max(L(:));
     if numLabels == 0
         error('No se detectaron regiones blancas en la máscara.');
@@ -69,10 +69,13 @@ function [MaskAorta, PuntosSiguiente] = PuntoInterno(mask, PuntosAorta)
         solidez = [statsRegiones.Solidity];
         
         minArea = statsAorta.Area;
-        tolEcc = statsAorta.Eccentricity;  % circularidad (0=círculo)
-        tolSol = statsAorta.Solidity; % relleno (1=perfectamente relleno)
+        %tolEcc = statsAorta.Eccentricity + 0.1;  % circularidad (0=círculo)
+        tolEcc = 0.6;
+        tolSol = statsAorta.Solidity - 0.02; % relleno (1=perfectamente relleno)
 
         idxFinal = find(eccentricidad < tolEcc & solidez > tolSol & areas > minArea); %Da vacio en algunos
+        %score = (1 - eccentricidad) + solidez;  % pondera ambos (más alto = más circular y sólido)
+        %[~, idxFinal] = max(score);
 
         % Si se encontró una segunda región válida
         if numel(idxFinal) == 1
