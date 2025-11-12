@@ -1,8 +1,8 @@
 function [MaskAorta, CentroideSiguiente] = Mascara(slice, CentroideAorta)
     SEcualizada = histeq(slice,256);
-    Mask = SEcualizada > 32000;
-    
-    %{
+    %SEcualizada = histeq(mat2gray(slice),256);
+    %Mask = SEcualizada > 32000;
+   
     R = 5;
 
     [rows, cols] = size(SEcualizada);
@@ -20,27 +20,30 @@ function [MaskAorta, CentroideSiguiente] = Mascara(slice, CentroideAorta)
     %Version automatizada
     %}
 
-    Mask = imclose(Mask,strel('disk',1));
+    Mask = imopen(Mask,strel('disk',2));
+    %Mask = imfill(Mask, "holes");
 
     [MaskAorta,CentroideSiguiente] = PuntoInterno(Mask, CentroideAorta);
 
+    
+    
     figure(1)
     subplot(1,2,1)
     imshow(Mask)
     subplot(1,2,2)
     imshow(MaskAorta)
     impixelinfo
-    pause(0.025)
+    pause(0.1)
+    %}
 end
 %% Comentarios a tener en cuenta
 %PROBLEMA: en la primera imagen SI hay que marcar el centroide
 %SOLUCION: dentro del objeto que encuentra que contiene al puntointerno, devolver el promedio de intensidades de
 %ese objeto. FALTA APLICAR
 
-%PROBLEMA: no detecta ambas ramas de la aorta
-%SOLUCION: averiguar entre que slices estan las ramas de interes y hallar
-%otra circunferencia similar a la actual. FALTA APLICAR
-
-%PROBLEMA: no debe tomar vasos cercanos
-%SOLUCION: que utilice conjuntos conexos pero de 4 pixeles, no 8. FALTA
-%APLICAR
+% D6 funciona bien con imopen + imfill, porque la 2da rama en algunas
+% slices desaparece por ser tan granulada.
+%Pero D4 le pones eso y anda mal. sale bien con el imopen pero agregandole
+%el imfill no.
+%Ideas: que por cada punto centroide, haga un promedio de las intensidades
+%--> Convendria combinar mascara y punto interno. 
