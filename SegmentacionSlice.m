@@ -4,9 +4,9 @@ function [SliceMarcada, CentroideSiguiente] = SegmentacionSlice(CentroideAorta, 
 
 figure(1)
 
-SliceMarcada(:,:,1) = Slice(:,:,:).*int16(MaskAorta);
+%SliceMarcada(:,:,1) = Slice(:,:,:).*int16(MaskAorta);
+SliceMarcada(:,:,1) = MaskAorta;
 
-imshow(MaskAorta)
-pause(0.05)
+
 end
 
