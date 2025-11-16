@@ -1,14 +1,17 @@
 function [MaskAorta, CentroideSiguiente] = Mascara(slice, CentroideAorta)
     SEcualizada = histeq(slice,256);
+    edges = edge(SEcualizada,"canny");
+    edges = int16(~edges);
+    sliceedge = slice.*edges;
     %SEcualizada = histeq(mat2gray(slice),256);
     %Mask = SEcualizada > 32000;
    
     R = 5;
 
-    [rows, cols] = size(SEcualizada);
+    [rows, cols] = size(sliceedge);
     [X, Y] = meshgrid(1:cols, 1:rows);
     maskradio = (X - CentroideAorta(1)).^2 + (Y - CentroideAorta(2)).^2 <= R^2;
-    valores = SEcualizada(maskradio);
+    valores = sliceedge(maskradio);
     valores = valores(valores ~= 0 & ~isnan(valores));
 
     if isempty(valores)
@@ -16,12 +19,13 @@ function [MaskAorta, CentroideSiguiente] = Mascara(slice, CentroideAorta)
     else
         min_val = min(valores);
     end
-    Mask = SEcualizada >= min_val;
+    Mask = sliceedge >= min_val;
     %Version automatizada
     %}
 
-    Mask = imopen(Mask,strel('disk',2));
-    %Mask = imfill(Mask, "holes");
+    Mask = imopen(Mask,strel('disk',1));
+    Mask = imfill(Mask, "holes");
+    
 
     [MaskAorta,CentroideSiguiente] = PuntoInterno(Mask, CentroideAorta);
 
