@@ -39,6 +39,8 @@ function [MaskAorta, PuntosSiguiente] = PuntoInterno(mask, PuntosAorta)
             etiquetas(end+1) = etiqueta; %#ok<AGROW>
         else
             warning('El punto #%d no pertenece a ninguna región blanca.', k);
+            PuntosAorta(1,k) = 0;
+            PuntosAorta(1,k+1) = 0;
         end
     end
 
