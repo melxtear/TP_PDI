@@ -1,6 +1,6 @@
 function [] = VolumenAorta3D(filename, SliceInicial, SliceFinal)
 
-vol = nrrdread(filename);
+vol = nrrdread(filename + ".nrrd");
 vol = vol(:,:,SliceInicial:SliceFinal,:);
 VolMarcado = zeros([size(vol),1]); %RGB
 [~, ~,numSlices] = size(vol);
@@ -15,3 +15,11 @@ end
 
 %volshow(VolMarcado);
 %volshow(VolMarcado, 'Colormap', [0 0 0; 1 0 0],'IsosurfaceValue',0.5);
+
+VolDongyang = nrrdread(filename + ".seg.nrrd");
+A = VolMarcado > 0; 
+B = VolDongyang(:,:,SliceInicial:SliceFinal) > 0;
+
+inter = sum(A(:) & B(:));
+dice = 2 * inter / (sum(A(:)) + sum(B(:)));
+fprintf("Coeficiente de Dice: %.2f\n", dice);
