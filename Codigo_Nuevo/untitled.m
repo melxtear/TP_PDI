@@ -1,4 +1,4 @@
-%vol = nrrdread("Dongyang\D1\D1.nrrd");
+vol = nrrdread("Dongyang\D1\D1.nrrd");
 
 %{
 for k = size(vol,3):-1:1
